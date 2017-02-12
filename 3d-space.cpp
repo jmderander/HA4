@@ -1,5 +1,7 @@
-#pragma once
-#include <vector>;
+#ifndef SPACE
+#define SPACE
+#include <iostream>
+#include <vector>
 
 using namespace std;
 typedef vector<vector<vector<int>>> space_matrix;
@@ -11,13 +13,13 @@ class Space{
 		int sizeY;
 		int sizeZ;
 		int size;
-		// Insane time complexity of O(n^3)
+		// Insane time complexity of O(n^2)
 		void alterSize() {
 			this->size = this->sizeX * this->sizeY * this->sizeZ;
 			matrix.resize(this->sizeX);
-			for (auto v : matrix) {
+			for (auto &v : matrix) {
 				v.resize(this->sizeY);
-				for (auto vs : v) {
+				for (auto &vs : v) {
 					vs.resize(this->sizeZ);
 				}
 			}
@@ -52,6 +54,9 @@ class Space{
 			}
 			else if (o == "All") {
 				return this->size;
+			}
+			else {
+				return -1;
 			}
 		}
 
@@ -98,3 +103,5 @@ class Space{
 			matrix.at(x).at(y).at(z) = v;
 		}
 };
+
+#endif
