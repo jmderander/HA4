@@ -5,6 +5,7 @@
 #include <vector>
 
 typedef std::vector<std::vector<std::vector<int>>> space_matrix;
+typedef std::vector<std::vector<int>> plane_matrix;
 
 class Space {
 private:
@@ -21,6 +22,8 @@ public:
 	Space(int x, int y, int z);
 
 	space_matrix getSpace();
+
+	plane_matrix* getPlaneFromSpace();
 
 	int getSize(std::string o);
 

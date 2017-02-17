@@ -29,9 +29,29 @@ Space::Space(int x, int y, int z) {
 	this->sizeZ = z;
 	alterSize();
 }
+
 space_matrix Space::getSpace() {
 	return this->matrix;
 }
+
+/*
+	Converts the Space to a plane, projecting all coordinates 
+	to the X,Y plane and returns a reference to the plane.
+	Important to destruct it when done!
+*/
+plane_matrix* Space::getPlaneFromSpace() {
+	plane_matrix* pm = new plane_matrix();
+	pm->resize(this->sizeX);
+	for (auto &v : *pm) {
+		v.resize(this->sizeY);
+	}
+	for (auto &v : this->matrix) {
+		for (auto &vs : v) {
+
+		}
+	}
+}
+
 int Space::getSize(string o) {
 	if (o == "X"){
 		return this->sizeX;
