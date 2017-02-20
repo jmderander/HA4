@@ -1,4 +1,4 @@
-#include <3d-space.h>
+#include "3d-space.h"
 
 using namespace std;
 
@@ -54,12 +54,14 @@ plane_matrix* Space::toSpace() {
 			for (int i : vy) {
 				if (i) {
 					pm->at(x).at(y) = 1;
+					break;
 				}
 			}
 			++y;
 		}
 		++x;
 	}
+	return pm;
 }
 
 int Space::getSize(string o) {
