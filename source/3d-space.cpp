@@ -38,17 +38,27 @@ space_matrix Space::getSpace() {
 	Converts the Space to a plane, projecting all coordinates 
 	to the X,Y plane and returns a reference to the plane.
 	Important to destruct it when done!
+
+	This needs improvement, too slow atm!
 */
-plane_matrix* Space::getPlaneFromSpace() {
+plane_matrix* Space::toSpace() {
 	plane_matrix* pm = new plane_matrix();
+	int x = 0;
+	int y = 0;
 	pm->resize(this->sizeX);
 	for (auto &v : *pm) {
 		v.resize(this->sizeY);
 	}
-	for (auto &v : this->matrix) {
-		for (auto &vs : v) {
-
+	for (auto &vx : this->matrix) {
+		for (auto &vy : vx) {
+			for (int i : vy) {
+				if (i) {
+					pm->at(x).at(y) = 1;
+				}
+			}
+			++y;
 		}
+		++x;
 	}
 }
 

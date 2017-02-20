@@ -23,7 +23,7 @@ public:
 
 	space_matrix getSpace();
 
-	plane_matrix* getPlaneFromSpace();
+	plane_matrix* toSpace();
 
 	int getSize(std::string o);
 
