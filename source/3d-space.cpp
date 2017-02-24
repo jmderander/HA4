@@ -152,10 +152,11 @@ void test_space() {
 		}
 		cout << "\n\r";
 	}
+	delete pm;
+
 	string str;
 	while (str != "exit") {
 		cin >> str;
 	}
-	
-	delete pm;
+
 }
