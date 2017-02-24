@@ -3,9 +3,11 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 typedef std::vector<std::vector<std::vector<int>>> space_matrix;
 typedef std::vector<std::vector<int>> plane_matrix;
+void test_space();
 
 class Space {
 private:

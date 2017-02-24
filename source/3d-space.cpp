@@ -59,6 +59,7 @@ plane_matrix* Space::toSpace() {
 			}
 			++y;
 		}
+		y = 0;
 		++x;
 	}
 	return pm;
@@ -123,4 +124,39 @@ void Space::alterCoord(string o, int x, int y, int z) {
 		v = 0;
 	}
 	matrix.at(x).at(y).at(z) = v;
+}
+
+void test_space() {
+	Space sp = Space();
+	for (int i = 1; i < 1000; i++) {
+		sp.alterCoord("Set", (int)(rand() % sp.getSize("X")), (int)(rand() % sp.getSize("Y")), (int)(rand() % sp.getSize("Z")));
+	}
+	plane_matrix* pm = sp.toSpace();
+
+	
+	for (auto &v : *pm) {
+		int i = 0;
+		for (auto &vs : v) {
+			if(vs == 0){
+				cout << " |";
+			}
+			else {
+				cout << "*|";
+			}
+			++i;
+		}
+		cout << "\n\r";
+		while (i > 0) {
+			cout << "==";
+			--i;
+		}
+		cout << "\n\r";
+	}
+	delete pm;
+
+	string str;
+	while (str != "exit") {
+		cin >> str;
+	}
+
 }
