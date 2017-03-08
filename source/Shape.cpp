@@ -40,7 +40,7 @@ void Shape::matrixMul(double matrix[][3]) {
 }
 
 
-void Shape::rotate(int x, int y, int z) {
+void Shape::rotate(double x, double y, double z) {
   /*[1,   0,      0,
      0,  sin(a),  cos(a),
      0,  cos(a),  sin(a)]*/

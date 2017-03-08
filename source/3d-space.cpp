@@ -17,6 +17,7 @@ void Space::alterSize() {
 	
 Space::Space() {
 	//51 * 51 * 51 default value for size
+    this->activeCoords = 0;
 	this->sizeX = 51;
 	this->sizeY = 51;
 	this->sizeZ = 51;
@@ -24,6 +25,7 @@ Space::Space() {
 }
 
 Space::Space(int x, int y, int z) {
+    this->activeCoords = 0;
     if(x%2==0){
         this->sizeX = x+1;
     }
@@ -68,18 +70,11 @@ plane_matrix* Space::toSpace() {
 	for (auto &vx : this->matrix) {
 		for (auto &vy : vx) {
 			for (int i : vy) {
-                int z = 0;
-				if (i) {
-                    if( x!= ((sizeX-1) / 2) || y != ((sizeY-1) / 2)){
-                        pm->at(x).at(y) = 1;
-                    }else if(z < ((sizeZ-1) / 2)){
-                        pm->at(x).at(y) = 1;
-                    }
-
-					break;
-				}
-                z++;
-			}
+                if (i) {
+                    pm->at(x).at(y) = 1;
+                    break;
+                }
+            }
 			++y;
 		}
 		y = 0;
@@ -107,7 +102,7 @@ int Space::getSize(string o) {
 }
 
 int Space::getVatCoord(int x, int y, int z) {
-	return matrix.at(x).at(y).at(z);
+	return matrix.at(x+((this->sizeX-1)/2)).at(y+((this->sizeY-1)/2)).at(z+((this->sizeZ-1)/2));
 }
 
 /*
@@ -152,6 +147,30 @@ void Space::changeSize(string o, int s) {
 		alterSize();
 	}
 }
+
+vector<coord> Space::getActiveCoords() {
+    vector<coord> tmpVec;
+    tmpVec.resize(this->activeCoords);
+    int index = 0;
+    for(int i = 0; i < this->sizeX; i++){
+        for(int j = 0; j < this->sizeY; j++){
+            for(int k = 0; k < this->sizeZ; k++){
+                if(this->getVatCoord(i - ((sizeX-1)/2),j - ((sizeY-1)/2), k - ((sizeZ-1)/2)) == 1){
+                    int x,y,z;
+
+                    x = i - ((sizeX-1)/2);
+                    y = j - ((sizeY-1)/2);
+                    z = k - ((sizeZ-1)/2);
+
+                    tmpVec.at(index) = {x,y,z};
+                    ++index;
+                }
+
+            }
+        }
+    }
+    return tmpVec;
+}
 		
 /*
 	Usage: Use "Set" followed by coordinate to write 1 to it or "Purge" to write 0 
@@ -165,21 +184,11 @@ void Space::alterCoord(string o, int x, int y, int z) {
 		v = 0;
 	}
 
-    if(x >= 0){
-        x = x + ((this->sizeX-1) / 2);
-    }else{
-        x = ((this->sizeX-1) / 2) - abs(x);
-    }
-    if(y >= 0){
-        y = y + ((this->sizeY-1) / 2);
-    }else{
-        y = ((this->sizeY-1) / 2) - abs(y);
-    }
-    if(z >= 0){
-        z = z + ((this->sizeZ-1) / 2);
-    }else{
-        z = ((this->sizeZ-1) / 2) - abs(z);
-    }
+
+    x = x + ((this->sizeX-1) / 2);
+    y = y + ((this->sizeY-1) / 2);
+    z = z + ((this->sizeZ-1) / 2);
+
 
     if(x>this->sizeX-1){
         x=this->sizeX-1;
@@ -196,25 +205,56 @@ void Space::alterCoord(string o, int x, int y, int z) {
     }else if(z<0){
         z=0;
     }
+    if(o == "Set" && getVatCoord(x - ((this->sizeX-1) / 2),y - ((this->sizeY-1) / 2),z - ((this->sizeZ-1) / 2)) != 1){
+        this->activeCoords += 1;
+    }
+    if(o == "Purge" && getVatCoord(x - ((this->sizeX-1) / 2),y - ((this->sizeY-1) / 2),z - ((this->sizeZ-1) / 2)) == 1){
+        this->activeCoords -= 1;
+    }
+
 	matrix.at(x).at(y).at(z) = v;
 }
+vector<coord> draw_line(coord start, coord end){
+    vector<coord> co;
+    if(start.x != end.x && start.y == end.y && start.z == end.z){
+        co.resize(end.x - start.x);
+        int index = 0;
+        for(int i = start.x; i < end.x; ++i){
+            co.at(index) = {i, start.y, start.z};
+            ++index;
+        }
 
+    }
+    else if(start.y != end.y && start.x == end.x && start.z == end.z){
+        co.resize(end.y - start.y);
+        int index = 0;
+        for(int i = start.y; i < end.y; ++i){
+            co.at(index) = {start.x, i, start.z};
+            ++index;
+        }
+
+    }
+    else if(start.z != end.z && start.y == end.y && start.x == end.x){
+        co.resize(end.z - start.z);
+        int index = 0;
+        for(int i = start.z; i < end.z; ++i){
+            co.at(index) = {start.x, start.y, i};
+            ++index;
+        }
+
+    }
+    else{
+        cout << "Error! Can only draw straight lines";
+    }
+    return co;
+}
 void print_space(Space s){
     plane_matrix* pm = s.toSpace();
 
     for(int i = 0; i < s.getSize("Y"); ++i){
         for(int j = 0; j < s.getSize("X"); ++j){
             if(pm->at(j).at(i) == 0){
-                if(i != ((s.getSize("X")-1) / 2)){
-                    if(j != ((s.getSize("X")-1) / 2)){
-                        cout << "  ";
-                    }else{
-                        cout << " |";
-                    }
-                }else{
-                    cout << " -";
-                }
-
+                cout << "  ";
             }
             else{
                 cout << " *";

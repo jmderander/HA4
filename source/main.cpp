@@ -20,26 +20,42 @@ int main() {
                             {10,6,1},{10,6,2},{10,6,3},{10,6,4},{10,6,5},{10,6,6},
                             {15,6,2},{15,6,2},{15,6,3},{15,6,4},{15,6,5},{15,6,6}};
 
-
-    for (int i = 0; i<1000; i++){
-        cout << "\r\n";
-        Shape* sh = new Shape(coords);
-        sh->rotate(0,i,0);
-        for(coord c : sh->getCoords()){
-            //cout << "{" << c.x << "," << c.y << "," << c.z << "}" << "\r\n";
-            s.alterCoord("Set", c.x, c.y, c.z);
-        }
-
-        print_space(s);
-
-        for(coord c : sh->getCoords()){
-            s.alterCoord("Purge", c.x, c.y, c.z);
-        }
-        usleep(500000);
-
-        delete(sh);
+    for (coord c : coords){
+        s.alterCoord("Set", c.x, c.y, c.z);
     }
 
-    //test_space();
+    vector<coord> line = draw_line({-25,0,0},{25,0,0});
+
+    for (coord c : line){
+        s.alterCoord("Set", c.x, c.y, c.z);
+    }
+
+    line = draw_line({0,-25,0},{0,25,0});
+
+    for (coord c : line){
+        s.alterCoord("Set", c.x, c.y, c.z);
+    }
+
+    line = draw_line({0,0,-25},{0,0,25});
+
+    for (coord c : line){
+        s.alterCoord("Set", c.x, c.y, c.z);
+    }
+
+    Shape rs = Shape(s.getActiveCoords());
+    rs.rotate(1,1,0);
+
+    for(coord c : s.getActiveCoords()){
+        //cout << c.x << ", " << c.y << ", " << c.z << "\r\n";
+        s.alterCoord("Purge", c.x, c.y, c.z);
+    }
+
+    for(coord c : rs.getCoords()){
+        s.alterCoord("Set", c.x, c.y, c.z);
+    }
+
+    print_space(s);
+
+
     return 0;
 }
