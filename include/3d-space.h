@@ -7,7 +7,6 @@
 
 typedef std::vector<std::vector<std::vector<int>>> space_matrix;
 typedef std::vector<std::vector<int>> plane_matrix;
-void test_space();
 
 class Space {
 private:
@@ -35,5 +34,8 @@ public:
 
 	void alterCoord(std::string o, int x, int y, int z);
 };
+
+void print_space(Space s);
+void test_space();
 
 #endif

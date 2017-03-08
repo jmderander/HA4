@@ -16,17 +16,32 @@ void Space::alterSize() {
 
 	
 Space::Space() {
-	//50 * 50 * 50 default value for size
-	this->sizeX = 50;
-	this->sizeY = 50;
-	this->sizeZ = 50;
+	//51 * 51 * 51 default value for size
+	this->sizeX = 51;
+	this->sizeY = 51;
+	this->sizeZ = 51;
 	alterSize();
 }
 
 Space::Space(int x, int y, int z) {
-	this->sizeX = x;
-	this->sizeY = y;
-	this->sizeZ = z;
+    if(x%2==0){
+        this->sizeX = x+1;
+    }
+    else{
+        this->sizeX = x;
+    }
+    if(y%2==0){
+        this->sizeY = y+1;
+    }
+    else{
+        this->sizeY = y;
+    }
+    if(z%2==0){
+        this->sizeZ = z+1;
+    }
+    else{
+        this->sizeZ = z;
+    }
 	alterSize();
 }
 
@@ -49,13 +64,21 @@ plane_matrix* Space::toSpace() {
 	for (auto &v : *pm) {
 		v.resize(this->sizeY);
 	}
+
 	for (auto &vx : this->matrix) {
 		for (auto &vy : vx) {
 			for (int i : vy) {
+                int z = 0;
 				if (i) {
-					pm->at(x).at(y) = 1;
+                    if( x!= ((sizeX-1) / 2) || y != ((sizeY-1) / 2)){
+                        pm->at(x).at(y) = 1;
+                    }else if(z < ((sizeZ-1) / 2)){
+                        pm->at(x).at(y) = 1;
+                    }
+
 					break;
 				}
+                z++;
 			}
 			++y;
 		}
@@ -93,21 +116,39 @@ int Space::getVatCoord(int x, int y, int z) {
 */
 void Space::changeSize(string o, int s) {
 	if (o == "X") {
-		this->sizeX = s;
+        if(s%2==0){
+            this->sizeX = s+1;
+        }else{
+            this->sizeX = s;
+        }
 		alterSize();
 	}
 	else if (o == "Y") {
-		this->sizeY = s;
+        if(s%2==0){
+            this->sizeY = s+1;
+        }else{
+            this->sizeY = s;
+        }
 		alterSize();
 	}
 	else if (o == "Z") {
-		this->sizeZ = s;
-		alterSize();
+        if(s%2==0){
+            this->sizeZ = s+1;
+        }else{
+            this->sizeZ = s;
+        }
 	}
 	else if (o == "All") {
-		this->sizeX = s;
-		this->sizeY = s;
-		this->sizeZ = s;
+        if(s%2==0){
+            this->sizeX = s+1;
+            this->sizeY = s+1;
+            this->sizeZ = s+1;
+        }else{
+            this->sizeX = s;
+            this->sizeY = s;
+            this->sizeZ = s;
+        }
+
 		alterSize();
 	}
 }
@@ -123,7 +164,67 @@ void Space::alterCoord(string o, int x, int y, int z) {
 	else if (o == "Purge") {
 		v = 0;
 	}
+
+    if(x >= 0){
+        x = x + ((this->sizeX-1) / 2);
+    }else{
+        x = ((this->sizeX-1) / 2) - abs(x);
+    }
+    if(y >= 0){
+        y = y + ((this->sizeY-1) / 2);
+    }else{
+        y = ((this->sizeY-1) / 2) - abs(y);
+    }
+    if(z >= 0){
+        z = z + ((this->sizeZ-1) / 2);
+    }else{
+        z = ((this->sizeZ-1) / 2) - abs(z);
+    }
+
+    if(x>this->sizeX-1){
+        x=this->sizeX-1;
+    }else if(x<0){
+        x=0;
+    }
+    if(y>this->sizeY-1){
+        y=this->sizeY-1;
+    }else if(y<0){
+        y=0;
+    }
+    if(z>this->sizeZ-1){
+        z=this->sizeZ-1;
+    }else if(z<0){
+        z=0;
+    }
 	matrix.at(x).at(y).at(z) = v;
+}
+
+void print_space(Space s){
+    plane_matrix* pm = s.toSpace();
+
+    for(int i = 0; i < s.getSize("Y"); ++i){
+        for(int j = 0; j < s.getSize("X"); ++j){
+            if(pm->at(j).at(i) == 0){
+                if(i != ((s.getSize("X")-1) / 2)){
+                    if(j != ((s.getSize("X")-1) / 2)){
+                        cout << "  ";
+                    }else{
+                        cout << " |";
+                    }
+                }else{
+                    cout << " -";
+                }
+
+            }
+            else{
+                cout << " *";
+            }
+
+        }
+        cout << "\r\n";
+
+    }
+    delete pm;
 }
 
 void test_space() {
@@ -131,32 +232,10 @@ void test_space() {
 	for (int i = 1; i < 1000; i++) {
 		sp.alterCoord("Set", (int)(rand() % sp.getSize("X")), (int)(rand() % sp.getSize("Y")), (int)(rand() % sp.getSize("Z")));
 	}
-	plane_matrix* pm = sp.toSpace();
+    print_space(sp);
 
-	
-	for (auto &v : *pm) {
-		int i = 0;
-		for (auto &vs : v) {
-			if(vs == 0){
-				cout << " |";
-			}
-			else {
-				cout << "*|";
-			}
-			++i;
-		}
-		cout << "\n\r";
-		while (i > 0) {
-			cout << "==";
-			--i;
-		}
-		cout << "\n\r";
-	}
-	delete pm;
-
-	string str;
-	while (str != "exit") {
-		cin >> str;
-	}
-
+    string str;
+    while (str != "exit") {
+        cin >> str;
+    }
 }
