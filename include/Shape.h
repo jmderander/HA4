@@ -2,12 +2,10 @@
 #define SHAPE_H
 
 #include <vector>
-//
-// Created by william on 2017-02-13.
-//
 
 typedef struct coord {
   int x,y,z;
+
 }coord;
 
 typedef struct color {
@@ -29,7 +27,7 @@ class Shape {
   color getColor();
   std::vector<coord> getCoords();
 
-  void rotate(int x, int y, int z);
+  void rotate(double x, double y, double z);
 };
 
 #endif
