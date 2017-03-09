@@ -16,17 +16,34 @@ void Space::alterSize() {
 
 	
 Space::Space() {
-	//50 * 50 * 50 default value for size
-	this->sizeX = 50;
-	this->sizeY = 50;
-	this->sizeZ = 50;
+	//51 * 51 * 51 default value for size
+    this->activeCoords = 0;
+	this->sizeX = 51;
+	this->sizeY = 51;
+	this->sizeZ = 51;
 	alterSize();
 }
 
 Space::Space(int x, int y, int z) {
-	this->sizeX = x;
-	this->sizeY = y;
-	this->sizeZ = z;
+    this->activeCoords = 0;
+    if(x%2==0){
+        this->sizeX = x+1;
+    }
+    else{
+        this->sizeX = x;
+    }
+    if(y%2==0){
+        this->sizeY = y+1;
+    }
+    else{
+        this->sizeY = y;
+    }
+    if(z%2==0){
+        this->sizeZ = z+1;
+    }
+    else{
+        this->sizeZ = z;
+    }
 	alterSize();
 }
 
@@ -49,14 +66,15 @@ plane_matrix* Space::toSpace() {
 	for (auto &v : *pm) {
 		v.resize(this->sizeY);
 	}
+
 	for (auto &vx : this->matrix) {
 		for (auto &vy : vx) {
 			for (int i : vy) {
-				if (i) {
-					pm->at(x).at(y) = 1;
-					break;
-				}
-			}
+                if (i) {
+                    pm->at(x).at(y) = 1;
+                    break;
+                }
+            }
 			++y;
 		}
 		y = 0;
@@ -84,7 +102,7 @@ int Space::getSize(string o) {
 }
 
 int Space::getVatCoord(int x, int y, int z) {
-	return matrix.at(x).at(y).at(z);
+	return matrix.at(x+((this->sizeX-1)/2)).at(y+((this->sizeY-1)/2)).at(z+((this->sizeZ-1)/2));
 }
 
 /*
@@ -93,23 +111,65 @@ int Space::getVatCoord(int x, int y, int z) {
 */
 void Space::changeSize(string o, int s) {
 	if (o == "X") {
-		this->sizeX = s;
+        if(s%2==0){
+            this->sizeX = s+1;
+        }else{
+            this->sizeX = s;
+        }
 		alterSize();
 	}
 	else if (o == "Y") {
-		this->sizeY = s;
+        if(s%2==0){
+            this->sizeY = s+1;
+        }else{
+            this->sizeY = s;
+        }
 		alterSize();
 	}
 	else if (o == "Z") {
-		this->sizeZ = s;
-		alterSize();
+        if(s%2==0){
+            this->sizeZ = s+1;
+        }else{
+            this->sizeZ = s;
+        }
 	}
 	else if (o == "All") {
-		this->sizeX = s;
-		this->sizeY = s;
-		this->sizeZ = s;
+        if(s%2==0){
+            this->sizeX = s+1;
+            this->sizeY = s+1;
+            this->sizeZ = s+1;
+        }else{
+            this->sizeX = s;
+            this->sizeY = s;
+            this->sizeZ = s;
+        }
+
 		alterSize();
 	}
+}
+
+vector<coord> Space::getActiveCoords() {
+    vector<coord> tmpVec;
+    tmpVec.resize(this->activeCoords);
+    int index = 0;
+    for(int i = 0; i < this->sizeX; i++){
+        for(int j = 0; j < this->sizeY; j++){
+            for(int k = 0; k < this->sizeZ; k++){
+                if(this->getVatCoord(i - ((sizeX-1)/2),j - ((sizeY-1)/2), k - ((sizeZ-1)/2)) == 1){
+                    int x,y,z;
+
+                    x = i - ((sizeX-1)/2);
+                    y = j - ((sizeY-1)/2);
+                    z = k - ((sizeZ-1)/2);
+
+                    tmpVec.at(index) = {x,y,z};
+                    ++index;
+                }
+
+            }
+        }
+    }
+    return tmpVec;
 }
 		
 /*
@@ -123,7 +183,88 @@ void Space::alterCoord(string o, int x, int y, int z) {
 	else if (o == "Purge") {
 		v = 0;
 	}
+
+
+    x = x + ((this->sizeX-1) / 2);
+    y = y + ((this->sizeY-1) / 2);
+    z = z + ((this->sizeZ-1) / 2);
+
+
+    if(x>this->sizeX-1){
+        x=this->sizeX-1;
+    }else if(x<0){
+        x=0;
+    }
+    if(y>this->sizeY-1){
+        y=this->sizeY-1;
+    }else if(y<0){
+        y=0;
+    }
+    if(z>this->sizeZ-1){
+        z=this->sizeZ-1;
+    }else if(z<0){
+        z=0;
+    }
+    if(o == "Set" && getVatCoord(x - ((this->sizeX-1) / 2),y - ((this->sizeY-1) / 2),z - ((this->sizeZ-1) / 2)) != 1){
+        this->activeCoords += 1;
+    }
+    if(o == "Purge" && getVatCoord(x - ((this->sizeX-1) / 2),y - ((this->sizeY-1) / 2),z - ((this->sizeZ-1) / 2)) == 1){
+        this->activeCoords -= 1;
+    }
+
 	matrix.at(x).at(y).at(z) = v;
+}
+vector<coord> draw_line(coord start, coord end){
+    vector<coord> co;
+    if(start.x != end.x && start.y == end.y && start.z == end.z){
+        co.resize(end.x - start.x);
+        int index = 0;
+        for(int i = start.x; i < end.x; ++i){
+            co.at(index) = {i, start.y, start.z};
+            ++index;
+        }
+
+    }
+    else if(start.y != end.y && start.x == end.x && start.z == end.z){
+        co.resize(end.y - start.y);
+        int index = 0;
+        for(int i = start.y; i < end.y; ++i){
+            co.at(index) = {start.x, i, start.z};
+            ++index;
+        }
+
+    }
+    else if(start.z != end.z && start.y == end.y && start.x == end.x){
+        co.resize(end.z - start.z);
+        int index = 0;
+        for(int i = start.z; i < end.z; ++i){
+            co.at(index) = {start.x, start.y, i};
+            ++index;
+        }
+
+    }
+    else{
+        cout << "Error! Can only draw straight lines";
+    }
+    return co;
+}
+void print_space(Space s){
+    plane_matrix* pm = s.toSpace();
+
+    for(int i = 0; i < s.getSize("Y"); ++i){
+        for(int j = 0; j < s.getSize("X"); ++j){
+            if(pm->at(j).at(i) == 0){
+                cout << "  ";
+            }
+            else{
+                cout << " *";
+            }
+
+        }
+        cout << "\r\n";
+
+    }
+    delete pm;
 }
 
 void test_space() {
@@ -131,32 +272,10 @@ void test_space() {
 	for (int i = 1; i < 1000; i++) {
 		sp.alterCoord("Set", (int)(rand() % sp.getSize("X")), (int)(rand() % sp.getSize("Y")), (int)(rand() % sp.getSize("Z")));
 	}
-	plane_matrix* pm = sp.toSpace();
+    print_space(sp);
 
-	
-	for (auto &v : *pm) {
-		int i = 0;
-		for (auto &vs : v) {
-			if(vs == 0){
-				cout << " |";
-			}
-			else {
-				cout << "*|";
-			}
-			++i;
-		}
-		cout << "\n\r";
-		while (i > 0) {
-			cout << "==";
-			--i;
-		}
-		cout << "\n\r";
-	}
-	delete pm;
-
-	string str;
-	while (str != "exit") {
-		cin >> str;
-	}
-
+    string str;
+    while (str != "exit") {
+        cin >> str;
+    }
 }
